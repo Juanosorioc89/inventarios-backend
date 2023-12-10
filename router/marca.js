@@ -1,10 +1,12 @@
 const { Router } = require('express');
 const Marca = require('../models/Marca');
 const {validationResult, check } = require('express-validator');
+const { validateJWT }  = require('../midelware/validar-jwt');
+const { validateRoleAdmin }  = require('../midelware/validar-rol-admin');
 
 const router = Router();
 
-router.post('/', [
+router.post('/', [validateJWT, validateRoleAdmin], [
     check('nombre', 'invalid.nombre').not().isEmpty(),
     check('estado', 'invalid.estado').isIn(['Activo', 'Inactivo']),
 ], async function(req, res){
@@ -29,7 +31,7 @@ router.post('/', [
     }
 })
 
-router.get('/', async function(req, res){
+router.get('/', [validateJWT, validateRoleAdmin], async function(req, res){
     try{
         const marcas = await Marca.find();
         res.send(marcas);

@@ -3,10 +3,11 @@ const Usuario = require('../models/Usuario');
 const {validationResult, check } = require('express-validator');
 const bycript = require('bcryptjs');
 const { validateJWT}  = require('../midelware/validar-jwt');
+const { validateRoleAdmin }  = require('../midelware/validar-rol-admin');
 
 const router = Router();
 
-router.post('/', [
+router.post('/', [validateJWT, validateRoleAdmin], [
     check('nombre', 'invalid.nombre').not().isEmpty(),
     check('email', 'invalid.email').isEmail(),
     check('password', 'invalid.password').not().isEmpty(),
@@ -50,7 +51,7 @@ router.post('/', [
     }
 })
 
-router.get('/', async function(req, res){
+router.get('/', [validateJWT, validateRoleAdmin], async function(req, res){
     try{
         const usuarios = await Usuario.find();
         res.send(usuarios);

@@ -2,11 +2,13 @@ const { Router } = require('express');
 const Inventario = require('../models/Inventario');
 const {validationResult, check } = require('express-validator');
 const { validateJWT } = require('../midelware/validar-jwt');
+const { selectFields } = require('express-validator/src/field-selection');
+const { validateRoleAdmin }  = require('../midelware/validar-rol-admin');
 
 
 const router = Router();
 
-router.post('/', validateJWT, [
+router.post('/', [validateJWT, validateRoleAdmin], [
     check('serial', 'invalid.serial').not().isEmpty(),
     check('modelo', 'invalid.modelo').not().isEmpty(),
     check('descripcion', 'invalid.descripcion').not().isEmpty(),
@@ -59,9 +61,21 @@ router.post('/', validateJWT, [
 
 })
 
-router.get('/', async function (req, res){
+router.get('/', [validateJWT, validateRoleAdmin], async function (req, res){
     try{
-        const inventarios = await Inventarios.find();
+        const inventarios = await Inventarios.find().populate([
+            {
+                path: 'usuario', select: 'nombre email estado'
+            },
+            {
+                path: 'marca', select: 'nombre estado'
+            },
+            {
+                path: 'tipoEquipo', select: 'nombre estado'
+            },
+            {
+                path: 'estadoEquipo', select: 'nombre estado'
+            }])
         res.send(inventarios);
 
     } catch(error){
