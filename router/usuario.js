@@ -7,7 +7,7 @@ const { validateRoleAdmin }  = require('../midelware/validar-rol-admin');
 
 const router = Router();
 
-router.post('/', [validateJWT, validateRoleAdmin], [
+router.post('/', [validateJWT, validateRoleAdmin],  [
     check('nombre', 'invalid.nombre').not().isEmpty(),
     check('email', 'invalid.email').isEmail(),
     check('password', 'invalid.password').not().isEmpty(),
@@ -62,7 +62,7 @@ router.get('/', [validateJWT, validateRoleAdmin], async function(req, res){
     }
 })
 
-router.put('/:usuarioId', [
+router.put('/:usuarioId', [validateJWT, validateRoleAdmin], [
     check('nombre', 'invalid.nombre').not().isEmpty(),
     check('email', 'invalid.email').isEmail(),
     check('password', 'invalid.password').not().isEmpty(),
