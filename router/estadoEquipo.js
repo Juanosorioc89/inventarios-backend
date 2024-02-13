@@ -43,4 +43,32 @@ router.get('/', [validateJWT, validateRoleAdmin], async function(req, res){
     }
 })
 
+router.put('/',[validateJWT, validateRoleAdmin],[
+    check('nombre', 'invalid.nombre').not().isEmpty(),
+    check('estado', 'invalid.estado').isIn(['Activo', 'Inactivo']),
+], async function(req, res) {
+    try{
+        let estadoEquipo = await EstadoEquipo.findById(req.params.estadoEquipoId);
+        if(!estadoEquipo){
+            return res.send('No existe estado');
+        }
+
+        const errors = validationResult(req);
+        if(!errors.isEmpty()){
+            return res.status(400).json({message: errors.array()});
+        }
+
+        estadoEquipo.nombre = req.body.nombre;
+        estadoEquipo.estado = req.body.estado;
+        estadoEquipo.fechaActualizacion = new Date();
+
+        estadoEquipo = await estadoEquipo.save();
+        res.send(estadoEquipo);
+
+    } catch(error) {
+        console.log(error);
+        res.status(500).send('Ocurrió un error');
+    }
+});
+
 module.exports = router;
